@@ -14,5 +14,4 @@ travis-ci = { repository = "kpcyrd/syscallz-rs" }
 [dependencies]
 seccomp-sys = "0.1.2"
 libc = "0.2"
-error-chain = "0.11"
 log = "0.4"
