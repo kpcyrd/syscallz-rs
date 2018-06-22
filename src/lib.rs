@@ -1,18 +1,14 @@
 extern crate seccomp_sys;
 extern crate libc;
-#[macro_use] extern crate error_chain;
 #[macro_use] extern crate log;
 
 use seccomp_sys::*;
 
+mod error;
+pub use error::{Error, Result};
+
 mod syscalls;
 pub use syscalls::Syscall;
-
-mod errors {
-    error_chain! {
-    }
-}
-pub use errors::{Error, ErrorKind, Result};
 
 
 pub struct Context {
@@ -24,7 +20,7 @@ impl Context {
         let ctx = unsafe { seccomp_init(SCMP_ACT_KILL) };
 
         if ctx.is_null() {
-            bail!("seccomp_init returned null");
+            return Err(Error::from("seccomp_init returned null".to_string()));
         }
 
         Ok(Context {
@@ -38,7 +34,7 @@ impl Context {
         let ret = unsafe { seccomp_rule_add(self.ctx, SCMP_ACT_ALLOW, syscall.into_i32(), 0) };
 
         if ret != 0 {
-            bail!("seccomp_rule_add returned error");
+            Err(Error::from("seccomp_rule_add returned error".to_string()))
         } else {
             Ok(())
         }
@@ -48,7 +44,7 @@ impl Context {
         let ret = unsafe { seccomp_load(self.ctx) };
 
         if ret != 0 {
-            bail!("seccomp_load returned error");
+            Err(Error::from("seccomp_load returned error".to_string()))
         } else {
             Ok(())
         }
