@@ -140,6 +140,11 @@ pub enum Syscall {
     capget              = libc::SYS_capget              as isize,
     capset              = libc::SYS_capset              as isize,
     brk                 = libc::SYS_brk                 as isize,
+    gettid              = libc::SYS_gettid              as isize,
+    tgkill              = libc::SYS_tgkill              as isize,
+    #[cfg(not(target_arch = "aarch64"))]
+    chown               = libc::SYS_chown               as isize,
+    fchown              = libc::SYS_fchown              as isize,
 }
 
 impl Syscall {
