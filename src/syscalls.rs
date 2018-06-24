@@ -38,8 +38,10 @@ pub enum Syscall {
     #[cfg(target_arch = "arm")]
     send                = libc::SYS_send                as isize,
     sendto              = libc::SYS_sendto              as isize,
-    recvfrom            = libc::SYS_recvfrom            as isize,
     sendmsg             = libc::SYS_sendmsg             as isize,
+    #[cfg(target_arch = "arm")]
+    recv                = libc::SYS_recv                as isize,
+    recvfrom            = libc::SYS_recvfrom            as isize,
     recvmsg             = libc::SYS_recvmsg             as isize,
     bind                = libc::SYS_bind                as isize,
     getsockname         = libc::SYS_getsockname         as isize,
