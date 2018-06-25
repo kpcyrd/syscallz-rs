@@ -11,13 +11,39 @@ mod syscalls;
 pub use syscalls::Syscall;
 
 
+#[derive(Debug)]
+pub enum Action {
+    Kill,
+    Trap,
+    Errno(u16),
+    Trace(u16),
+    Allow,
+}
+
+impl Into<u32> for Action {
+    fn into(self) -> u32 {
+        use self::Action::*;
+        match self {
+            Kill => SCMP_ACT_KILL,
+            Trap => SCMP_ACT_TRAP,
+            Errno(e) => SCMP_ACT_ERRNO(e.into()),
+            Trace(t) => SCMP_ACT_TRACE(t.into()),
+            Allow => SCMP_ACT_ALLOW,
+        }
+    }
+}
+
 pub struct Context {
     ctx: *mut scmp_filter_ctx,
 }
 
 impl Context {
     pub fn init() -> Result<Context> {
-        let ctx = unsafe { seccomp_init(SCMP_ACT_KILL) };
+        Context::init_with_action(Action::Kill)
+    }
+
+    pub fn init_with_action(default_action: Action) -> Result<Context> {
+        let ctx = unsafe { seccomp_init(default_action.into()) };
 
         if ctx.is_null() {
             return Err(Error::from("seccomp_init returned null".to_string()));
@@ -30,8 +56,13 @@ impl Context {
 
     #[inline]
     pub fn allow_syscall(&mut self, syscall: Syscall) -> Result<()> {
-        debug!("seccomp: allowing syscall={:?}", syscall);
-        let ret = unsafe { seccomp_rule_add(self.ctx, SCMP_ACT_ALLOW, syscall.into_i32(), 0) };
+        self.set_action_for_syscall(Action::Allow, syscall)
+    }
+
+    #[inline]
+    pub fn set_action_for_syscall(&mut self, action: Action, syscall: Syscall) -> Result<()> {
+        debug!("seccomp: setting action={:?} syscall={:?}", action, syscall);
+        let ret = unsafe { seccomp_rule_add(self.ctx, action.into(), syscall.into_i32(), 0) };
 
         if ret != 0 {
             Err(Error::from("seccomp_rule_add returned error".to_string()))
@@ -61,8 +92,15 @@ impl Drop for Context {
 
 #[cfg(test)]
 mod tests {
+    use libc;
+    use super::{Context, Action};
+    use super::syscalls::Syscall;
+
     #[test]
     fn it_works() {
-        assert_eq!(2 + 2, 4);
+        let mut ctx = Context::init_with_action(Action::Errno(69)).unwrap();
+        ctx.allow_syscall(Syscall::futex).unwrap();
+        ctx.load().unwrap();
+        assert_eq!(unsafe { libc::getpid() }, -69);
     }
 }
