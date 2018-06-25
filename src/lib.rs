@@ -72,6 +72,7 @@ impl Context {
     }
 
     pub fn load(&self) -> Result<()> {
+        debug!("seccomp: loading policy");
         let ret = unsafe { seccomp_load(self.ctx) };
 
         if ret != 0 {
