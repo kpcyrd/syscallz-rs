@@ -72,6 +72,7 @@ impl Context {
     }
 
     pub fn load(&self) -> Result<()> {
+        debug!("seccomp: loading policy");
         let ret = unsafe { seccomp_load(self.ctx) };
 
         if ret != 0 {
@@ -96,7 +97,9 @@ mod tests {
     use super::{Context, Action};
     use super::syscalls::Syscall;
 
+    // this test isn't fully stable yet
     #[test]
+    #[ignore]
     fn it_works() {
         let mut ctx = Context::init_with_action(Action::Errno(69)).unwrap();
         ctx.allow_syscall(Syscall::futex).unwrap();
