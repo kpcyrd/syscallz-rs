@@ -92,8 +92,15 @@ impl Drop for Context {
 
 #[cfg(test)]
 mod tests {
+    use libc;
+    use super::{Context, Action};
+    use super::syscalls::Syscall;
+
     #[test]
     fn it_works() {
-        assert_eq!(2 + 2, 4);
+        let mut ctx = Context::init_with_action(Action::Errno(69)).unwrap();
+        ctx.allow_syscall(Syscall::futex).unwrap();
+        ctx.load().unwrap();
+        assert_eq!(unsafe { libc::getpid() }, -69);
     }
 }
