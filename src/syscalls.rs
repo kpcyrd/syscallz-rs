@@ -147,6 +147,7 @@ pub enum Syscall {
     #[cfg(not(target_arch = "aarch64"))]
     chown               = libc::SYS_chown               as isize,
     fchown              = libc::SYS_fchown              as isize,
+    restart_syscall     = libc::SYS_restart_syscall     as isize,
 }
 
 impl Syscall {
