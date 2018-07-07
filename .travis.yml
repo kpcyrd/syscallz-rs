@@ -1,8 +1,16 @@
 language: rust
 sudo: required
+
+matrix:
+  include:
+  - os: linux
+    rust: stable
+    env: TARGET=x86_64-unknown-linux-gnu
+  - os: linux
+    rust: stable
+    env: TARGET=i686-unknown-linux-gnu
+
 install:
-- sudo apt-get update -qq
-- sudo apt-get install -yq libseccomp-dev
+- ci/install.sh
 script:
-- cargo build --verbose --all
-- cargo test --verbose --all
+- ci/build.sh
