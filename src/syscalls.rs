@@ -148,6 +148,7 @@ pub enum Syscall {
     chown               = libc::SYS_chown               as isize,
     fchown              = libc::SYS_fchown              as isize,
     restart_syscall     = libc::SYS_restart_syscall     as isize,
+    rt_sigreturn        = libc::SYS_rt_sigreturn        as isize,
 }
 
 impl Syscall {
