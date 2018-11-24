@@ -149,6 +149,9 @@ pub enum Syscall {
     fchown              = libc::SYS_fchown              as isize,
     restart_syscall     = libc::SYS_restart_syscall     as isize,
     rt_sigreturn        = libc::SYS_rt_sigreturn        as isize,
+    #[cfg(not(target_arch = "aarch64"))]
+    access              = libc::SYS_access              as isize,
+    faccessat           = libc::SYS_faccessat           as isize,
 }
 
 impl Syscall {
