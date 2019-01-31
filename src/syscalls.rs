@@ -5,6 +5,8 @@ use libc;
 pub enum Syscall {
     read                = libc::SYS_read                as isize,
     write               = libc::SYS_write               as isize,
+    readv               = libc::SYS_readv               as isize,
+    writev              = libc::SYS_writev              as isize,
     #[cfg(not(target_arch = "aarch64"))]
     open                = libc::SYS_open                as isize,
     close               = libc::SYS_close               as isize,
@@ -32,7 +34,6 @@ pub enum Syscall {
     munmap              = libc::SYS_munmap              as isize,
     rt_sigprocmask      = libc::SYS_rt_sigprocmask      as isize,
     ioctl               = libc::SYS_ioctl               as isize,
-    readv               = libc::SYS_readv               as isize,
     socket              = libc::SYS_socket              as isize,
     connect             = libc::SYS_connect             as isize,
     #[cfg(target_arch = "arm")]
