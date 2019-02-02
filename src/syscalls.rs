@@ -1,6 +1,6 @@
 use libc;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[allow(non_camel_case_types)]
 pub enum Syscall {
     read                = libc::SYS_read                as isize,
@@ -23,12 +23,11 @@ pub enum Syscall {
     lstat64             = libc::SYS_lstat64             as isize,
     #[cfg(not(target_arch = "aarch64"))]
     poll                = libc::SYS_poll                as isize,
-    #[cfg(target_arch = "aarch64")]
     ppoll               = libc::SYS_ppoll               as isize,
     lseek               = libc::SYS_lseek               as isize,
     #[cfg(not(target_arch = "arm"))]
     mmap                = libc::SYS_mmap                as isize,
-    #[cfg(target_arch = "arm")]
+    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
     mmap2               = libc::SYS_mmap2               as isize,
     mprotect            = libc::SYS_mprotect            as isize,
     munmap              = libc::SYS_munmap              as isize,
@@ -51,7 +50,7 @@ pub enum Syscall {
     clone               = libc::SYS_clone               as isize,
     uname               = libc::SYS_uname               as isize,
     fcntl               = libc::SYS_fcntl               as isize,
-    #[cfg(target_arch = "arm")]
+    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
     fcntl64             = libc::SYS_fcntl64             as isize,
     #[cfg(not(target_arch = "aarch64"))]
     getdents            = libc::SYS_getdents            as isize,
@@ -103,9 +102,13 @@ pub enum Syscall {
     #[cfg(not(target_arch = "aarch64"))]
     pipe                = libc::SYS_pipe                as isize,
     wait4               = libc::SYS_wait4               as isize,
+    #[cfg(target_arch = "x86")]
+    time                = libc::SYS_time                as isize,
     clock_gettime       = libc::SYS_clock_gettime       as isize,
     gettimeofday        = libc::SYS_gettimeofday        as isize,
     socketpair          = libc::SYS_socketpair          as isize,
+    #[cfg(target_arch = "x86")]
+    socketcall          = libc::SYS_socketcall          as isize,
     epoll_create1       = libc::SYS_epoll_create1       as isize,
     pipe2               = libc::SYS_pipe2               as isize,
     epoll_ctl           = libc::SYS_epoll_ctl           as isize,
