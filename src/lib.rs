@@ -11,7 +11,7 @@ mod syscalls;
 pub use syscalls::Syscall;
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Action {
     Kill,
     Trap,
