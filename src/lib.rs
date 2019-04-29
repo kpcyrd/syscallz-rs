@@ -1,6 +1,10 @@
-extern crate seccomp_sys;
 extern crate libc;
-#[macro_use] extern crate log;
+extern crate seccomp_sys;
+#[macro_use]
+extern crate log;
+extern crate strum;
+#[macro_use]
+extern crate strum_macros;
 
 use seccomp_sys::*;
 
@@ -9,7 +13,6 @@ pub use error::{Error, Result};
 
 mod syscalls;
 pub use syscalls::Syscall;
-
 
 #[derive(Debug, Clone)]
 pub enum Action {
@@ -49,9 +52,7 @@ impl Context {
             return Err(Error::from("seccomp_init returned null".to_string()));
         }
 
-        Ok(Context {
-            ctx,
-        })
+        Ok(Context { ctx })
     }
 
     #[inline]
@@ -85,17 +86,15 @@ impl Context {
 
 impl Drop for Context {
     fn drop(&mut self) {
-        unsafe {
-            seccomp_release(self.ctx)
-        };
+        unsafe { seccomp_release(self.ctx) };
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use libc;
-    use super::{Context, Action};
     use super::syscalls::Syscall;
+    use super::{Action, Context};
+    use libc;
 
     // this test isn't fully stable yet
     #[test]
@@ -105,5 +104,22 @@ mod tests {
         ctx.allow_syscall(Syscall::futex).unwrap();
         ctx.load().unwrap();
         assert_eq!(unsafe { libc::getpid() }, -69);
+    }
+
+    #[test]
+    fn from_name() {
+        use crate::syscalls::Syscall;
+
+        let cases = vec![
+            ("open", Some(Syscall::open)),
+            ("setgid", Some(Syscall::setgid)),
+            ("nothing", None),
+            ("", None),
+        ];
+
+        for (name, rhs) in cases {
+            let lhs = Syscall::from_name(name);
+            assert_eq!(lhs, rhs);
+        }
     }
 }

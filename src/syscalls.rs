@@ -1,6 +1,6 @@
 use libc;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, EnumString)]
 #[allow(non_camel_case_types)]
 pub enum Syscall {
 #[cfg(any(all(not(target_env = "musl"), any(target_arch = "arm", target_arch = "mips", target_arch = "powerpc", target_arch = "powerpc64", target_arch = "sparc64", target_arch = "x86")), all(target_env = "musl", any(target_arch = "arm", target_arch = "mips", target_arch = "powerpc", target_arch = "powerpc64", target_arch = "x86"))))]
@@ -657,5 +657,11 @@ impl Syscall {
     #[inline]
     pub fn into_i32(self) -> i32 {
         self as i32
+    }
+
+    #[inline]
+    pub fn from_name(name: &str) -> Option<Self>{
+        use std::str::FromStr;
+        Self::from_str(name).ok()
     }
 }
