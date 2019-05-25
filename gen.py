@@ -19,7 +19,6 @@ ARCHS = {
     'target_arch = "powerpc64"': 'other/b64/powerpc64.rs',
     'target_arch = "sparc64"': 'other/b64/sparc64.rs',
     X86_64_32: 'other/b64/x32.rs',
-    'target_arch = "s390x"': 's390x.rs',
 }
 # target_env = "musl"
 MUSL_ARCHS = {
@@ -61,7 +60,7 @@ def gen_conditions(conditions, archs):
 
 print('''use libc;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, EnumString)]
 #[allow(non_camel_case_types)]
 pub enum Syscall {''')
 
@@ -111,5 +110,11 @@ impl Syscall {
     #[inline]
     pub fn into_i32(self) -> i32 {
         self as i32
+    }
+
+    #[inline]
+    pub fn from_name(name: &str) -> Option<Self>{
+        use std::str::FromStr;
+        Self::from_str(name).ok()
     }
 }''')
