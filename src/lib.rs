@@ -8,13 +8,16 @@ extern crate strum_macros;
 
 use seccomp_sys::*;
 
+mod rule;
+pub use rule::{Cmp, Comparator};
+
 mod error;
 pub use error::{Error, Result};
 
 mod syscalls;
 pub use syscalls::Syscall;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum Action {
     Kill,
     Trap,
@@ -67,6 +70,39 @@ impl Context {
 
         if ret != 0 {
             Err(Error::from("seccomp_rule_add returned error".to_string()))
+        } else {
+            Ok(())
+        }
+    }
+
+    pub fn set_rule_for_syscall(
+        &mut self,
+        action: Action,
+        syscall: Syscall,
+        comparators: &[Comparator],
+    ) -> Result<()> {
+        debug!(
+            "seccomp: setting action={:?} syscall={:?} comparators={:?}",
+            action, syscall, comparators
+        );
+        let comps: Vec<scmp_arg_cmp> = comparators
+            .iter()
+            .map(|comp| comp.clone().into())
+            .collect::<_>();
+
+        let ret = unsafe {
+            seccomp_rule_add_array(
+                self.ctx,
+                action.into(),
+                syscall.into_i32(),
+                comps.len() as u32,
+                comps.as_ptr(),
+            )
+        };
+        if ret != 0 {
+            Err(Error::from(
+                "seccomp_rule_add_array returned error".to_string(),
+            ))
         } else {
             Ok(())
         }
