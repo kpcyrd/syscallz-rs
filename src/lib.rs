@@ -158,4 +158,31 @@ mod tests {
             assert_eq!(lhs, rhs);
         }
     }
+
+    #[test]
+    fn test_rule() {
+        use crate::rule::{Cmp, Comparator};
+        use crate::Action;
+        use std::fs::File;
+        use std::io::Read;
+        use std::os::unix::io::AsRawFd;
+
+        let mut f = File::open("Cargo.toml").unwrap();
+
+        let mut ctx = Context::init_with_action(Action::Allow).unwrap();
+        ctx.set_rule_for_syscall(
+            Action::Errno(1),
+            Syscall::read,
+            &[Comparator::new(0, Cmp::Eq, f.as_raw_fd() as u64, None)],
+        )
+        .unwrap();
+        ctx.load().unwrap();
+
+        let mut buf: [u8; 1024] = [0; 1024];
+        let res = f.read(&mut buf);
+        assert!(res.is_err());
+
+        let err = res.unwrap_err();
+        assert_eq!(err.raw_os_error(), Some(1));
+    }
 }
