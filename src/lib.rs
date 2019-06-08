@@ -8,13 +8,16 @@ extern crate strum_macros;
 
 use seccomp_sys::*;
 
+mod rule;
+pub use rule::{Cmp, Comparator};
+
 mod error;
 pub use error::{Error, Result};
 
 mod syscalls;
 pub use syscalls::Syscall;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum Action {
     Kill,
     Trap,
@@ -72,6 +75,39 @@ impl Context {
         }
     }
 
+    pub fn set_rule_for_syscall(
+        &mut self,
+        action: Action,
+        syscall: Syscall,
+        comparators: &[Comparator],
+    ) -> Result<()> {
+        debug!(
+            "seccomp: setting action={:?} syscall={:?} comparators={:?}",
+            action, syscall, comparators
+        );
+        let comps: Vec<scmp_arg_cmp> = comparators
+            .iter()
+            .map(|comp| comp.clone().into())
+            .collect::<_>();
+
+        let ret = unsafe {
+            seccomp_rule_add_array(
+                self.ctx,
+                action.into(),
+                syscall.into_i32(),
+                comps.len() as u32,
+                comps.as_ptr(),
+            )
+        };
+        if ret != 0 {
+            Err(Error::from(
+                "seccomp_rule_add_array returned error".to_string(),
+            ))
+        } else {
+            Ok(())
+        }
+    }
+
     pub fn load(&self) -> Result<()> {
         debug!("seccomp: loading policy");
         let ret = unsafe { seccomp_load(self.ctx) };
@@ -121,5 +157,32 @@ mod tests {
             let lhs = Syscall::from_name(name);
             assert_eq!(lhs, rhs);
         }
+    }
+
+    #[test]
+    fn test_rule() {
+        use crate::rule::{Cmp, Comparator};
+        use crate::Action;
+        use std::fs::File;
+        use std::io::Read;
+        use std::os::unix::io::AsRawFd;
+
+        let mut f = File::open("Cargo.toml").unwrap();
+
+        let mut ctx = Context::init_with_action(Action::Allow).unwrap();
+        ctx.set_rule_for_syscall(
+            Action::Errno(1),
+            Syscall::read,
+            &[Comparator::new(0, Cmp::Eq, f.as_raw_fd() as u64, None)],
+        )
+        .unwrap();
+        ctx.load().unwrap();
+
+        let mut buf: [u8; 1024] = [0; 1024];
+        let res = f.read(&mut buf);
+        assert!(res.is_err());
+
+        let err = res.unwrap_err();
+        assert_eq!(err.raw_os_error(), Some(1));
     }
 }
