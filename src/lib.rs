@@ -85,18 +85,14 @@ impl Context {
             "seccomp: setting action={:?} syscall={:?} comparators={:?}",
             action, syscall, comparators
         );
-        let comps: Vec<scmp_arg_cmp> = comparators
-            .iter()
-            .map(|comp| comp.clone().into())
-            .collect::<_>();
 
         let ret = unsafe {
             seccomp_rule_add_array(
                 self.ctx,
                 action.into(),
                 syscall.into_i32(),
-                comps.len() as u32,
-                comps.as_ptr(),
+                comparators.len() as u32,
+                comparators.as_ptr() as *const scmp_arg_cmp
             )
         };
         if ret != 0 {

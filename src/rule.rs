@@ -1,4 +1,4 @@
-use seccomp_sys::*;
+use seccomp_sys::{scmp_arg_cmp, scmp_compare};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, EnumString)]
 pub enum Cmp {
@@ -27,32 +27,23 @@ impl Into<scmp_compare> for Cmp {
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct Comparator {
-    arg: u32,
-    op: Cmp,
-    datum_a: u64,
-    datum_b: u64,
+#[derive(Debug)]
+#[repr(transparent)]
+pub struct Comparator(scmp_arg_cmp);
+
+impl Clone for Comparator {
+    fn clone(&self) -> Self {
+        unsafe { std::ptr::read(self as *const Comparator) }
+    }
 }
 
 impl Comparator {
     pub fn new(arg: u32, op: Cmp, datum_a: u64, datum_b: Option<u64>) -> Self {
-        Self {
+        Self(scmp_arg_cmp {
             arg,
-            op,
+            op: op.into(),
             datum_a,
             datum_b: datum_b.unwrap_or(0_u64),
-        }
-    }
-}
-
-impl Into<scmp_arg_cmp> for Comparator {
-    fn into(self) -> scmp_arg_cmp {
-        scmp_arg_cmp {
-            arg: self.arg,
-            op: self.op.into(),
-            datum_a: self.datum_a,
-            datum_b: self.datum_b,
-        }
+        })
     }
 }
