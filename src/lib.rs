@@ -44,10 +44,14 @@ pub struct Context {
 }
 
 impl Context {
+    /// Initialize a context with Action::Kill.
     pub fn init() -> Result<Context> {
         Context::init_with_action(Action::Kill)
     }
 
+    /// Initialize a context with default_action.
+    /// 
+    /// Returns Err(Error::Msg) if seccomp_init returned NULL.
     pub fn init_with_action(default_action: Action) -> Result<Context> {
         let ctx = unsafe { seccomp_init(default_action.into()) };
 
@@ -63,18 +67,22 @@ impl Context {
         self.set_action_for_syscall(Action::Allow, syscall)
     }
 
-    #[inline]
+    /// Returns Err(Error::Os) if seccomp_rule_add failed.
     pub fn set_action_for_syscall(&mut self, action: Action, syscall: Syscall) -> Result<()> {
         debug!("seccomp: setting action={:?} syscall={:?}", action, syscall);
         let ret = unsafe { seccomp_rule_add(self.ctx, action.into(), syscall.into_i32(), 0) };
 
         if ret != 0 {
-            Err(Error::from("seccomp_rule_add returned error".to_string()))
+            Err(Error::from_errno(-ret))
         } else {
             Ok(())
         }
     }
 
+    /// Returns Err(Error::Os) if seccomp_rule_add_array failed.
+    /// 
+    /// Due to [seccomp/libseccomp #118](https://github.com/seccomp/libseccomp/issues/118),
+    /// this method only allows you to specify one comparison per argument.
     pub fn set_rule_for_syscall(
         &mut self,
         action: Action,
@@ -85,31 +93,31 @@ impl Context {
             "seccomp: setting action={:?} syscall={:?} comparators={:?}",
             action, syscall, comparators
         );
-
         let ret = unsafe {
             seccomp_rule_add_array(
                 self.ctx,
                 action.into(),
                 syscall.into_i32(),
                 comparators.len() as u32,
-                comparators.as_ptr() as *const scmp_arg_cmp
+                comparators.as_ptr() as *const scmp_arg_cmp,
             )
         };
         if ret != 0 {
-            Err(Error::from(
-                "seccomp_rule_add_array returned error".to_string(),
-            ))
+            Err(Error::from_errno(-ret))
         } else {
             Ok(())
         }
     }
 
+    /// Loads the seccomp filter into the kernel.
+    /// 
+    /// Returns Err(Error::Os) if seccomp_load failed.
     pub fn load(&self) -> Result<()> {
         debug!("seccomp: loading policy");
         let ret = unsafe { seccomp_load(self.ctx) };
 
         if ret != 0 {
-            Err(Error::from("seccomp_load returned error".to_string()))
+            Err(Error::from_errno(-ret))
         } else {
             Ok(())
         }
