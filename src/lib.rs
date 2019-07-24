@@ -50,7 +50,7 @@ impl Context {
     }
 
     /// Initialize a context with default_action.
-    /// 
+    ///
     /// Returns Err(Error::Msg) if seccomp_init returned NULL.
     pub fn init_with_action(default_action: Action) -> Result<Context> {
         let ctx = unsafe { seccomp_init(default_action.into()) };
@@ -80,7 +80,7 @@ impl Context {
     }
 
     /// Returns Err(Error::Os) if seccomp_rule_add_array failed.
-    /// 
+    ///
     /// Due to [seccomp/libseccomp #118](https://github.com/seccomp/libseccomp/issues/118),
     /// this method only allows you to specify one comparison per argument.
     pub fn set_rule_for_syscall(
@@ -110,7 +110,7 @@ impl Context {
     }
 
     /// Loads the seccomp filter into the kernel.
-    /// 
+    ///
     /// Returns Err(Error::Os) if seccomp_load failed.
     pub fn load(&self) -> Result<()> {
         debug!("seccomp: loading policy");
@@ -177,7 +177,7 @@ mod tests {
         ctx.set_rule_for_syscall(
             Action::Errno(1),
             Syscall::read,
-            &[Comparator::new(0, Cmp::Eq, f.as_raw_fd() as u64, None)],
+            &[Comparator::new(0, Cmp::Eq, f.as_raw_fd() as u64, 0)],
         )
         .unwrap();
         ctx.load().unwrap();
