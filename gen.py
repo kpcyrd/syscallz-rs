@@ -5,30 +5,34 @@ import sys
 X86_64_NOT_32   = 'all(target_arch = "x86_64", not(target_pointer_width = "32"))'
 X86_64_32       = 'all(target_arch = "x86_64", target_pointer_width = "32")'
 
-BASE = (sys.argv[1] if len(sys.argv) > 1 else '.') + '/src/unix/notbsd/linux'
+# TODO: musl
+BASE = (sys.argv[1] if len(sys.argv) > 1 else '.') + '/src/unix/linux_like/linux'
 ARCHS = {
-    'target_arch = "mips"': 'mips/mips32.rs',
-    'target_arch = "mips64"': 'mips/mips64.rs',
+    'target_arch = "x86"': 'gnu/b32/x86/mod.rs',
+    'target_arch = "arm"': 'gnu/b32/arm/mod.rs',
+    'target_arch = "mips"': 'gnu/b32/mips/mod.rs',
+    'target_arch = "powerpc"': 'gnu/b32/powerpc.rs',
 
-    'target_arch = "arm"': 'other/b32/arm.rs',
-    'target_arch = "powerpc"': 'other/b32/powerpc.rs',
-    'target_arch = "x86"': 'other/b32/x86.rs',
+    'target_arch = "aarch64"': 'gnu/b64/aarch64/mod.rs',
+    'target_arch = "powerpc64"': 'gnu/b64/powerpc64/mod.rs',
+    'target_arch = "sparc64"': 'gnu/b64/sparc64/mod.rs',
+    'target_arch = "mips64"': 'gnu/b64/mips64/mod.rs',
+    'target_arch = "s390x"': 'gnu/b64/s390x.rs',
 
-    'target_arch = "aarch64"': 'other/b64/aarch64.rs',
-    X86_64_NOT_32: 'other/b64/not_x32.rs',
-    'target_arch = "powerpc64"': 'other/b64/powerpc64.rs',
-    'target_arch = "sparc64"': 'other/b64/sparc64.rs',
-    X86_64_32: 'other/b64/x32.rs',
+    X86_64_32: 'gnu/b64/x86_64/x32.rs',
+    X86_64_NOT_32: 'gnu/b64/x86_64/not_x32.rs',
 }
 # target_env = "musl"
 MUSL_ARCHS = {
-    'target_arch = "arm"': 'musl/b32/arm.rs',
-    'target_arch = "mips"': 'musl/b32/mips.rs',
+    'target_arch = "x86"': 'musl/b32/x86/mod.rs',
+    'target_arch = "mips"': 'musl/b32/mips/mod.rs',
+    'target_arch = "arm"': 'musl/b32/arm/mod.rs',
     'target_arch = "powerpc"': 'musl/b32/powerpc.rs',
-    'target_arch = "x86"': 'musl/b32/x86.rs',
-    'target_arch = "aarch64"': 'musl/b64/aarch64.rs',
+
+    'target_arch = "aarch64"': 'musl/b64/aarch64/mod.rs',
     'target_arch = "powerpc64"': 'musl/b64/powerpc64.rs',
-    'target_arch = "x86_64"': 'musl/b64/x86_64.rs',
+    'target_arch = "mips64"': 'musl/b64/mips64.rs',
+    'target_arch = "x86_64"': 'musl/b64/x86_64/mod.rs',
 }
 
 def find_syscalls(archs):
