@@ -19,7 +19,8 @@ pub use syscalls::Syscall;
 
 #[derive(Debug, Clone, Copy)]
 pub enum Action {
-    Kill,
+    KillProcess,
+    KillThread,
     Trap,
     Errno(u16),
     Trace(u16),
@@ -30,7 +31,8 @@ impl Into<u32> for Action {
     fn into(self) -> u32 {
         use self::Action::*;
         match self {
-            Kill => SCMP_ACT_KILL,
+            KillProcess => SCMP_ACT_KILL_PROCESS,
+            KillThread => SCMP_ACT_KILL,
             Trap => SCMP_ACT_TRAP,
             Errno(e) => SCMP_ACT_ERRNO(e.into()),
             Trace(t) => SCMP_ACT_TRACE(t.into()),
@@ -45,7 +47,7 @@ pub struct Context {
 
 impl Context {
     pub fn init() -> Result<Context> {
-        Context::init_with_action(Action::Kill)
+        Context::init_with_action(Action::KillProcess)
     }
 
     pub fn init_with_action(default_action: Action) -> Result<Context> {
