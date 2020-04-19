@@ -1,6 +1,9 @@
 use log::*;
 use seccomp_sys::*;
 
+// workaround until we can assume libseccomp >= 2.4.0 is always present
+include!(concat!(env!("OUT_DIR"), "/const.rs"));
+
 mod rule;
 pub use rule::{Cmp, Comparator};
 
@@ -40,7 +43,7 @@ pub struct Context {
 
 impl Context {
     pub fn init() -> Result<Context> {
-        Context::init_with_action(Action::KillProcess)
+        Context::init_with_action(DEFAULT_KILL)
     }
 
     pub fn init_with_action(default_action: Action) -> Result<Context> {
