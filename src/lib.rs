@@ -1,11 +1,4 @@
-extern crate libc;
-extern crate seccomp_sys;
-#[macro_use]
-extern crate log;
-extern crate strum;
-#[macro_use]
-extern crate strum_macros;
-
+use log::*;
 use seccomp_sys::*;
 
 mod rule;

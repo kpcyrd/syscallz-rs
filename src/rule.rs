@@ -1,4 +1,5 @@
 use seccomp_sys::*;
+use strum_macros::EnumString;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, EnumString)]
 pub enum Cmp {

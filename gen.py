@@ -62,7 +62,8 @@ def gen_conditions(conditions, archs):
         conditions.sort()
         return 'any(' + ', '.join(conditions) + ')'
 
-print('''use libc;
+print('''use strum_macros::EnumString;
+use libc;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, EnumString)]
 #[allow(non_camel_case_types)]

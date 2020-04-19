@@ -1,3 +1,4 @@
+use strum_macros::EnumString;
 use libc;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, EnumString)]
