@@ -1,6 +1,6 @@
 [package]
 name = "syscallz"
-version = "0.13.2"
+version = "0.14.0"
 description = "Simple seccomp library for rust"
 authors = ["kpcyrd <git@rxv.cc>"]
 license = "MIT/Apache-2.0"
