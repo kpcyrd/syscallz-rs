@@ -24,7 +24,7 @@ impl error::Error for Error {
 impl From<String> for Error {
     fn from(err: String) -> Error {
         Error {
-            inner: err.into(),
+            inner: err,
         }
     }
 }
