@@ -388,6 +388,8 @@ fsmount = 432,
 fspick = 433,
 pidfd_open = 434,
 clone3 = 435,
+close_range = 436,
 openat2 = 437,
 pidfd_getfd = 438,
+faccessat2 = 439,
 }
