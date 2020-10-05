@@ -1,5 +1,6 @@
 #[derive(Debug, Clone, Copy, PartialEq, Eq, EnumString)]
 #[allow(non_camel_case_types)]
+#[non_exhaustive]
 pub enum Syscall {
 syscall = 0,
 exit = 1,

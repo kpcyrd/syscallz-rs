@@ -21,6 +21,7 @@ SOURCES = [
 def header(o):
     print('#[derive(Debug, Clone, Copy, PartialEq, Eq, EnumString)]', file=o)
     print('#[allow(non_camel_case_types)]', file=o)
+    print('#[non_exhaustive]', file=o)
     print('pub enum Syscall {', file=o)
 
 def footer(o):
