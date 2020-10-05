@@ -31,6 +31,8 @@ def convert_tbl(out, f):
             m = re.match('^(\\d+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)', l)
             if m:
                 nr, abi, name, entrypoint = m.groups()
+                if name in {'break'}:
+                    name = '_' + name
                 if abi in abis:
                     print(name + ' = ' + nr + ',', file=o)
         footer(o)
