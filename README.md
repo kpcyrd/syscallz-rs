@@ -14,7 +14,7 @@ crate releases frequently if the syscall list has been updated.
 ```
 # Cargo.toml
 [dependencies]
-syscallz = "0.11"
+syscallz = "0.15"
 ```
 
 ## License
