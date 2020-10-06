@@ -11,6 +11,9 @@ include!("b32/powerpc.rs");
 #[cfg(target_arch="x86")]
 include!("b32/x86.rs");
 
+#[cfg(target_arch="mips")]
+include!("b32/mips.rs");
+
 #[cfg(target_arch = "powerpc64")]
 include!("b64/powerpc64.rs");
 
@@ -28,6 +31,9 @@ include!("b64/riscv64.rs");
 
 #[cfg(target_arch="aarch64")]
 include!("b64/aarch64.rs");
+
+#[cfg(target_arch="mips64")]
+include!("b64/mips64.rs");
 
 impl Syscall {
     #[inline]

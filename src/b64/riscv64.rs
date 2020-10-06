@@ -1,5 +1,6 @@
 #[derive(Debug, Clone, Copy, PartialEq, Eq, EnumString)]
 #[allow(non_camel_case_types)]
+#[non_exhaustive]
 pub enum Syscall {
 io_setup = 0,
 io_destroy = 1,
@@ -312,6 +313,8 @@ fsmount = 432,
 fspick = 433,
 pidfd_open = 434,
 clone3 = 435,
+close_range = 436,
 openat2 = 437,
 pidfd_getfd = 438,
+faccessat2 = 439,
 }

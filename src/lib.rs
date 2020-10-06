@@ -145,7 +145,7 @@ mod tests {
         use crate::syscalls::Syscall;
 
         let cases = vec![
-            ("open", Some(Syscall::open)),
+            ("write", Some(Syscall::write)),
             ("setgid", Some(Syscall::setgid)),
             ("nothing", None),
             ("", None),

@@ -10,15 +10,18 @@ SOURCES = [
     ('b32/sparc',       {'common', '32'},           'arch/sparc/kernel/syscalls/syscall.tbl'),
     ('b32/x86',         {'i386'},                   'arch/x86/entry/syscalls/syscall_32.tbl'),
     ('b32/powerpc',     {'common', 'nospu', '32'},  'arch/powerpc/kernel/syscalls/syscall.tbl'),
+    ('b32/mipsel',      {'o32'},                    'arch/mips/kernel/syscalls/syscall_o32.tbl'),
     ('b64/x86_64',      {'common', '64'},           'arch/x86/entry/syscalls/syscall_64.tbl'),
     ('b64/powerpc64',   {'common', 'nospu', '64'},  'arch/powerpc/kernel/syscalls/syscall.tbl'),
     ('b64/s390x',       {'common', '64'},           'arch/s390/kernel/syscalls/syscall.tbl'),
     ('b64/sparc64',     {'common', '64'},           'arch/sparc/kernel/syscalls/syscall.tbl'),
+    ('b64/mips64el',    {'n64'},                    'arch/mips/kernel/syscalls/syscall_n64.tbl'),
 ]
 
 def header(o):
     print('#[derive(Debug, Clone, Copy, PartialEq, Eq, EnumString)]', file=o)
     print('#[allow(non_camel_case_types)]', file=o)
+    print('#[non_exhaustive]', file=o)
     print('pub enum Syscall {', file=o)
 
 def footer(o):
@@ -31,6 +34,8 @@ def convert_tbl(out, f):
             m = re.match('^(\\d+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)', l)
             if m:
                 nr, abi, name, entrypoint = m.groups()
+                if name in {'break'}:
+                    name = '_' + name
                 if abi in abis:
                     print(name + ' = ' + nr + ',', file=o)
         footer(o)
