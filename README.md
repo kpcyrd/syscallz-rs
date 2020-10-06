@@ -1,7 +1,6 @@
-# syscallz-rs [![Build Status][travis-img]][travis] [![crates.io][crates-img]][crates] [![docs.rs][docs-img]][docs]
+# syscallz-rs ![Build Status][test-img] [![crates.io][crates-img]][crates] [![docs.rs][docs-img]][docs]
 
-[travis-img]:   https://travis-ci.org/kpcyrd/syscallz-rs.svg?branch=main
-[travis]:       https://travis-ci.org/kpcyrd/syscallz-rs
+[test-img]:     https://github.com/kpcyrd/syscallz-rs/workflows/Rust/badge.svg
 [crates-img]:   https://img.shields.io/crates/v/syscallz.svg
 [crates]:       https://crates.io/crates/syscallz
 [docs-img]:     https://docs.rs/syscallz/badge.svg
