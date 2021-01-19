@@ -1,5 +1,6 @@
 use log::*;
 use seccomp_sys::*;
+use std::os::unix::io::AsRawFd;
 
 // workaround until we can assume libseccomp >= 2.4.0 is always present
 include!(concat!(env!("OUT_DIR"), "/const.rs"));
@@ -116,6 +117,26 @@ impl Context {
             Ok(())
         }
     }
+
+    pub fn export_bpf(&self, fd: &mut dyn AsRawFd) -> Result<()> {
+        let ret = unsafe { seccomp_export_bpf(self.ctx, fd.as_raw_fd()) };
+
+        if ret != 0 {
+            Err(Error::from("seccomp_export_bpf returned error".to_string()))
+        } else {
+            Ok(())
+        }
+    }
+
+    pub fn export_pfc(&self, fd: &mut dyn AsRawFd) -> Result<()> {
+        let ret = unsafe { seccomp_export_pfc(self.ctx, fd.as_raw_fd()) };
+
+        if ret != 0 {
+            Err(Error::from("seccomp_export_pfc returned error".to_string()))
+        } else {
+            Ok(())
+        }
+    }
 }
 
 impl Drop for Context {
@@ -182,5 +203,15 @@ mod tests {
 
         let err = res.unwrap_err();
         assert_eq!(err.raw_os_error(), Some(1));
+    }
+
+    #[test]
+    fn test_export() {
+        use std::fs::OpenOptions;
+
+        let mut file = OpenOptions::new().append(true).open("/dev/null").unwrap();
+        let ctx = Context::init_with_action(Action::Allow).unwrap();
+        assert!(ctx.export_bpf(&mut file).is_ok());
+        assert!(ctx.export_pfc(&mut file).is_ok());
     }
 }
