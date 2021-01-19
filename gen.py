@@ -3,6 +3,7 @@ import re
 import sys
 import pathlib
 
+# Base path for Linux Kernel sources
 BASE = (sys.argv[1] if len(sys.argv) > 1 else '.')
 
 SOURCES = [
