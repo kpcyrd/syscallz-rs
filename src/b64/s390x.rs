@@ -360,4 +360,5 @@ close_range = 436,
 openat2 = 437,
 pidfd_getfd = 438,
 faccessat2 = 439,
+process_madvise = 440,
 }
