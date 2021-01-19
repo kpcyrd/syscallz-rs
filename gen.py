@@ -31,7 +31,7 @@ def convert_tbl(out, f):
     with open(out, 'w') as o:
         header(o)
         for l in f:
-            m = re.match('^(\\d+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)', l)
+            m = re.match('^(\\d+)\\s+(\\S+)\\s+(\\S+)(?:\\s+(\\S+))?', l)
             if m:
                 nr, abi, name, entrypoint = m.groups()
                 if name in {'break'}:
