@@ -1,3 +1,33 @@
+//! Simple seccomp library for rust. Please note that the syscall list is
+//! incomplete and you might need to send a PR to get your syscalls included. This
+//! crate releases frequently if the syscall list has been updated.
+//!
+//! # Example
+//!
+//! ```no_run
+//! use syscallz::{Context, Syscall, Action};
+//!
+//! fn main() -> syscallz::Result<()> {
+//!
+//!     // The default action if no other rule matches is syscallz::DEFAULT_KILL
+//!     // For a different default use `Context::init_with_action`
+//!     let mut ctx = Context::init()?;
+//!
+//!     // Allow-list some syscalls
+//!     ctx.allow_syscall(Syscall::open);
+//!     ctx.allow_syscall(Syscall::getpid);
+//!     // Set a specific action for a syscall
+//!     ctx.set_action_for_syscall(Action::Errno(1), Syscall::execve);
+//!
+//!     // Enforce the seccomp filter
+//!     ctx.load()?;
+//!
+//!     Ok(())
+//! }
+//! ```
+
+#![allow(bindings_with_variant_name)]
+
 use log::*;
 use seccomp_sys::*;
 use std::os::unix::io::AsRawFd;
@@ -14,20 +44,29 @@ pub use error::{Error, Result};
 mod syscalls;
 pub use syscalls::Syscall;
 
+/// The action to execute if a rule matches
 #[derive(Debug, Clone, Copy)]
 pub enum Action {
+    /// Kill the whole process if a rule is violated.
     KillProcess,
+    /// Kill the thread that has violated a rule.
     KillThread,
+    /// Send a SIGSYS if a rule is violated.
     Trap,
+    /// Reject the syscall and set the errno accordingly.
     Errno(u16),
+    /// If the thread is being traced with ptrace, notify the tracing process.
+    /// The numeric argument can be retrieved with `PTRACE_GETEVENTMSG`.
     Trace(u16),
+    /// The syscall is allowed and executed as usual.
     Allow,
+    // TODO: SCMP_ACT_TRAP
 }
 
-impl Into<u32> for Action {
-    fn into(self) -> u32 {
+impl From<Action> for u32 {
+    fn from(action: Action) -> u32 {
         use self::Action::*;
-        match self {
+        match action {
             KillProcess => SCMP_ACT_KILL_PROCESS,
             KillThread => SCMP_ACT_KILL,
             Trap => SCMP_ACT_TRAP,
@@ -38,15 +77,19 @@ impl Into<u32> for Action {
     }
 }
 
+/// The context to configure and enforce seccomp rules
 pub struct Context {
     ctx: *mut scmp_filter_ctx,
 }
 
 impl Context {
+    /// Create a new seccomp context and use
+    /// [`DEFAULT_KILL`](constant.DEFAULT_KILL.html) as the default action.
     pub fn init() -> Result<Context> {
         Context::init_with_action(DEFAULT_KILL)
     }
 
+    /// Create a new seccomp context with the given Action as default action.
     pub fn init_with_action(default_action: Action) -> Result<Context> {
         let ctx = unsafe { seccomp_init(default_action.into()) };
 
@@ -57,11 +100,14 @@ impl Context {
         Ok(Context { ctx })
     }
 
+    /// Allow the given syscall regardless of the arguments.
     #[inline]
     pub fn allow_syscall(&mut self, syscall: Syscall) -> Result<()> {
         self.set_action_for_syscall(Action::Allow, syscall)
     }
 
+    /// Execute the given action for the given syscall. This can be used to
+    /// either allow or deny a syscall, regardless of the arguments.
     #[inline]
     pub fn set_action_for_syscall(&mut self, action: Action, syscall: Syscall) -> Result<()> {
         debug!("seccomp: setting action={:?} syscall={:?}", action, syscall);
@@ -74,6 +120,8 @@ impl Context {
         }
     }
 
+    /// Execute a given action for a given syscall if the
+    /// [`Comparator`](struct.Comparator.html)s match the given arguments.
     pub fn set_rule_for_syscall(
         &mut self,
         action: Action,
@@ -107,6 +155,7 @@ impl Context {
         }
     }
 
+    /// Load and enforce the configured seccomp policy
     pub fn load(&self) -> Result<()> {
         debug!("seccomp: loading policy");
         let ret = unsafe { seccomp_load(self.ctx) };
@@ -118,6 +167,9 @@ impl Context {
         }
     }
 
+    /// Generate and output the current seccomp filter in BPF (Berkeley Packet
+    /// Filter) format. The output is suitable to be loaded into the kernel. The
+    /// filter is written to the given file descriptor.
     pub fn export_bpf(&self, fd: &mut dyn AsRawFd) -> Result<()> {
         let ret = unsafe { seccomp_export_bpf(self.ctx, fd.as_raw_fd()) };
 
@@ -128,6 +180,9 @@ impl Context {
         }
     }
 
+    /// Generate and output the current seccomp filter in PFC (Pseudo Filter
+    /// Code) format. The output is human read and meant to be used for debugging
+    /// for developers. The filter is written to the given file descriptor.
     pub fn export_pfc(&self, fd: &mut dyn AsRawFd) -> Result<()> {
         let ret = unsafe { seccomp_export_pfc(self.ctx, fd.as_raw_fd()) };
 
