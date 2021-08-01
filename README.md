@@ -10,10 +10,10 @@ Simple seccomp library for rust. Please note that the syscall list is
 incomplete and you might need to send a PR to get your syscalls included. This
 crate releases frequently if the syscall list has been updated.
 
-```
+```toml
 # Cargo.toml
 [dependencies]
-syscallz = "0.15"
+syscallz = "0.16"
 ```
 
 ## License
