@@ -20,6 +20,7 @@ SOURCES = [
 ]
 
 def header(o):
+    print('/// An enum of all syscalls', file=o)
     print('#[derive(Debug, Clone, Copy, PartialEq, Eq, EnumString)]', file=o)
     print('#[allow(non_camel_case_types)]', file=o)
     print('#[non_exhaustive]', file=o)
