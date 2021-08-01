@@ -20,11 +20,11 @@ pub enum Cmp {
     MaskedEq,
 }
 
-impl Into<scmp_compare> for Cmp {
-    fn into(self) -> scmp_compare {
+impl From<Cmp> for scmp_compare {
+    fn from(cmp: Cmp) -> scmp_compare {
         use self::Cmp::*;
         use scmp_compare::*;
-        match self {
+        match cmp {
             Ne => SCMP_CMP_NE,
             Lt => SCMP_CMP_LT,
             Le => SCMP_CMP_LE,
@@ -61,13 +61,13 @@ impl Comparator {
     }
 }
 
-impl Into<scmp_arg_cmp> for Comparator {
-    fn into(self) -> scmp_arg_cmp {
+impl From<Comparator> for scmp_arg_cmp {
+    fn from(cmp: Comparator) -> scmp_arg_cmp {
         scmp_arg_cmp {
-            arg: self.arg,
-            op: self.op.into(),
-            datum_a: self.datum_a,
-            datum_b: self.datum_b,
+            arg: cmp.arg,
+            op: cmp.op.into(),
+            datum_a: cmp.datum_a,
+            datum_b: cmp.datum_b,
         }
     }
 }

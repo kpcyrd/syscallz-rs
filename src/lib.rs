@@ -26,6 +26,8 @@
 //! }
 //! ```
 
+#![allow(bindings_with_variant_name)]
+
 use log::*;
 use seccomp_sys::*;
 use std::os::unix::io::AsRawFd;
@@ -61,10 +63,10 @@ pub enum Action {
     // TODO: SCMP_ACT_TRAP
 }
 
-impl Into<u32> for Action {
-    fn into(self) -> u32 {
+impl From<Action> for u32 {
+    fn from(action: Action) -> u32 {
         use self::Action::*;
-        match self {
+        match action {
             KillProcess => SCMP_ACT_KILL_PROCESS,
             KillThread => SCMP_ACT_KILL,
             Trap => SCMP_ACT_TRAP,
