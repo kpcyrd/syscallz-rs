@@ -363,4 +363,6 @@ landlock_add_rule = 445,
 landlock_restrict_self = 446,
 memfd_secret = 447,
 process_mrelease = 448,
+futex_waitv = 449,
+set_mempolicy_home_node = 450,
 }
