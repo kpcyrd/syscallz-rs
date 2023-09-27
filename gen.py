@@ -77,6 +77,7 @@ UNISTD_MAP32 = {
 UNISTD_SOURCES = [
     ('b64/riscv64', UNISTD_MAP64),
     ('b64/aarch64', UNISTD_MAP64),
+    ('b64/loongarch64', UNISTD_MAP64),
 ]
 
 def convert_unistd(out, unistd_map, f):
