@@ -385,4 +385,5 @@ landlock_restrict_self = 446,
 process_mrelease = 448,
 futex_waitv = 449,
 set_mempolicy_home_node = 450,
+cachestat = 451,
 }

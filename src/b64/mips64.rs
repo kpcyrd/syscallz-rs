@@ -356,4 +356,5 @@ landlock_add_rule = 445,
 landlock_restrict_self = 446,
 process_mrelease = 448,
 futex_waitv = 449,
+cachestat = 451,
 }
