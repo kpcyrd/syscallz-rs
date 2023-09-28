@@ -21,6 +21,6 @@ fn main() {
     };
     let code = format!("/// The default kill action, defaults to KillProcess on supported libseccomp versions and falls back to KillThread otherwise\n{}", code);
 
-    fs::write(&dest_path, &code).unwrap();
+    fs::write(dest_path, code).unwrap();
     println!("cargo:rerun-if-changed=build.rs");
 }
