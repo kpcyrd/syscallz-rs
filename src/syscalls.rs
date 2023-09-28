@@ -35,6 +35,9 @@ include!("b64/aarch64.rs");
 #[cfg(target_arch="mips64")]
 include!("b64/mips64.rs");
 
+#[cfg(target_arch="loongarch64")]
+include!("b64/loongarch64.rs");
+
 impl Syscall {
     #[inline]
     pub fn into_i32(self) -> i32 {
